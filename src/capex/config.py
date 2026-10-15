@@ -9,10 +9,20 @@ from dotenv import load_dotenv
 ROOT = Path(__file__).resolve().parents[2]
 load_dotenv(ROOT / ".env")
 
-DATABASE_URL = os.getenv(
+
+def _normalise_url(url: str) -> str:
+    """Accept the plain postgresql:// / postgres:// strings that hosted providers
+    (Neon, Supabase, Render...) hand out, and point them at the psycopg 3 driver."""
+    for prefix in ("postgresql://", "postgres://"):
+        if url.startswith(prefix):
+            return "postgresql+psycopg://" + url[len(prefix):]
+    return url
+
+
+DATABASE_URL = _normalise_url(os.getenv(
     "DATABASE_URL",
     "postgresql+psycopg://postgres:postgres@localhost:5432/capex",
-)
+))
 SQL_DIR = ROOT / "sql"
 REPORTS_DIR = ROOT / "reports"
 

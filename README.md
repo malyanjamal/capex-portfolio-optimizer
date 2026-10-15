@@ -128,6 +128,8 @@ On macOS or Linux, activate the environment with `source .venv/bin/activate` and
 
 **With Docker instead:** `docker compose up --build`, then open http://localhost:8501.
 
+**Deploy a public demo:** see [`docs/DEPLOY.md`](docs/DEPLOY.md) for free hosting on Neon (PostgreSQL) and Streamlit Community Cloud.
+
 ### Individual commands
 
 ```bash

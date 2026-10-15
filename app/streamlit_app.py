@@ -4,6 +4,7 @@ Run:  streamlit run app/streamlit_app.py
 """
 from __future__ import annotations
 
+import os
 import sys
 from dataclasses import replace
 from pathlib import Path
@@ -14,6 +15,16 @@ import plotly.graph_objects as go
 import streamlit as st
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+# On Streamlit Community Cloud, settings come from the app's Secrets, not a .env file.
+# Copy them into the environment before the capex package reads its configuration.
+try:
+    for _key in ("DATABASE_URL", "DEMO_MODE"):
+        if _key in st.secrets and _key not in os.environ:
+            os.environ[_key] = str(st.secrets[_key])
+except Exception:  # noqa: BLE001 - no secrets file when running locally
+    pass
+DEMO_MODE = os.getenv("DEMO_MODE", "0").lower() in ("1", "true", "yes")
 
 from capex import db  # noqa: E402
 from capex import finance as fin  # noqa: E402
@@ -129,6 +140,11 @@ port_irr = fin.irr(cf_port["net"]) if len(cf_port) else None
 
 # ------------------------------------------------------------------ header
 st.title("Capital Investment Portfolio Optimizer")
+if DEMO_MODE:
+    st.info("Live demo on synthetic data. Change the scenario, budget or assumptions in the "
+            "sidebar and the portfolio re-optimises. Source: "
+            "[github.com/malyanjamal/capex-portfolio-optimizer]"
+            "(https://github.com/malyanjamal/capex-portfolio-optimizer)", icon="ℹ️")
 st.caption(f"{BASE_YEAR}-{BASE_YEAR + len(budget) - 1} distribution capex plan · "
            f"{len(proj)} candidate projects · scenario **{scenario}** · synthetic data, "
            "PKR million, real terms")
@@ -352,7 +368,10 @@ with tabs[4]:
 with tabs[5]:
     st.write("Persist this what-if as an analysis run and portfolio in PostgreSQL, or download "
              "the executive business case.")
-    if st.button("Save run to database", type="primary"):
+    if DEMO_MODE:
+        st.info("Saving to the database is turned off in this public demo. Run the project "
+                "locally to persist what-if runs.")
+    elif st.button("Save run to database", type="primary"):
         run_id = db.new_run(scenario, n_sims, 42, notes="dashboard what-if")
         db.write_df(metrics.assign(run_id=run_id), "project_metrics")
         for pf in (milp, g_npv, g_pi):
