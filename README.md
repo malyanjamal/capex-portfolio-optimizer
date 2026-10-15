@@ -1,5 +1,7 @@
 # Capital Investment Portfolio Optimizer
 
+**[▶ Live demo](https://capex-portfolio-optimizer-nbacawq9vbvctw46ggcrxh.streamlit.app/)** · [Sample business case (PDF)](reports/sample_business_case.pdf) · [![CI](https://github.com/malyanjamal/capex-portfolio-optimizer/actions/workflows/ci.yml/badge.svg)](https://github.com/malyanjamal/capex-portfolio-optimizer/actions/workflows/ci.yml)
+
 **Which capital projects should a power distribution utility fund over the next five years, and when, to create the most value within its budget?**
 
 This project answers that question end to end. It appraises 38 candidate network investments (NPV, IRR, payback, benefit-cost ratio), stress-tests them with Monte Carlo simulation, then uses mixed-integer optimisation to choose and schedule the portfolio. It produces an interactive dashboard and a board-style business case PDF, all on top of a PostgreSQL data model.
